@@ -92,12 +92,50 @@ def get_user_input():
     print('#############################################################\n')
 
     # Non-canonical amino acids or protecting groups?
+    non_canonicals = json.loads(open('non-canonical_aas.json').read())
     while True:
-        non_canonical = input('Does your sequence include any non-canonical amino acids or protecting groups that are not removed during cleavage? (yes/no): ').lower()
-        if ans == 'yes':
-            print('TODO: Implement non-canonicals')
+        have_non_canonical = input('Does your sequence include any non-canonical amino acids or protecting groups that are not removed during cleavage? (yes/no): ').lower()
+        if have_non_canonical == 'yes':
+            print('The following are the pre-defined non-canonical residues that you can reference in your sequence input:')
+            print('Name\t\tSymbol\t\tMass')
+            for non_canonical in non_canonicals:
+                print(non_canonical + '\t\t' + str(non_canonicals[non_canonical]['symbol']) + '\t\t' + str(non_canonicals[non_canonical]['mass']))
+            non_canonical_num = 1
+            while True:
+                have_undefined_non_canoncials = input('Do you have any residues that are not included in this list? (yes/no)').lower()
+                # Allow user to define new non-canonical residues
+                if have_undefined_non_canoncials == 'yes':
+                    new_non_canoncical_to_define = True
+                    while new_non_canoncical_to_define:
+                        new_non_canonical = input('Enter the name of your non-canonical residue')
+                        while True:
+                            new_non_canoncial_mass = input('Enter the mass of your non-canonical')
+                            try:
+                                new_non_canoncial_mass = float(new_non_canoncial_mass)
+                                break
+                            except(Exception):
+                                print('The mass for the non-canonical residue must be a number. Please try again.')
+                        non_canonicals[new_non_canonical] = {'symbol': str(non_canonical_num), 'mass': new_non_canoncial_mass}
+                        while True:
+                            more_to_define = input('Do you have more non_canonicals to define? (yes/no)').lower()
+                            if more_to_define == 'yes':
+                                new_non_canoncical_to_define = True
+                                non_canonical_num += 1
+                            elif more_to_define == 'no':
+                                new_non_canoncical_to_define = False
+                                print('Here is updated list of non-canonical residues you can reference in your sequence input: ')
+                                print('Name\t\tSymbol\t\tMass')
+                                for non_canonical in non_canonicals:
+                                    print(non_canonical + '\t\t' + str(non_canonicals[non_canonical]['symbol']) + '\t\t' + str(non_canonicals[non_canonical]['mass']))
+                                break
+                            print('Please answer yes/no. Try again.')
+                        break
+                    break
+                elif have_undefined_non_canoncials == 'no':
+                    break
+                print('Please answer \"yes\" or \"no\".')
             break
-        elif ans == 'no':
+        elif have_non_canonical == 'no':
             break
         print('Please answer \"yes\" or \"no\".')
 
@@ -105,7 +143,10 @@ def get_user_input():
     # Get sequence
     while True:
         sequence = input('Enter the desired sequence of your peptide: ').upper()
-        if re.search(r"[^ACDEFGHIKLMNPQRSTVWY]", sequence):
+        possible_residue_symbols = 'ACDEFGHIKLMNPQRSTVWY'
+        for non_canonical in non_canonicals:
+            possible_residue_symbols += non_canonicals[non_canonical]['symbol']
+        if re.search(f"[^{possible_residue_symbols}]", sequence):
             print('You have entered an invalid sequence. Please try again.')
             continue
         break
@@ -147,7 +188,7 @@ def get_user_input():
         except(Exception):
             print('Confidence must be a number. Please try again.')
 
-    return sequence, observed_mass, confidence, n_terminus, c_terminus
+    return sequence, observed_mass, confidence, n_terminus, c_terminus, non_canonicals
 
 
 if __name__ == '__main__':
@@ -159,11 +200,15 @@ if __name__ == '__main__':
     termini_species_masses = json.loads(open('termini_species_masses.json').read())
 
     # Get user input
-    sequence, obs_mass, uncertainty, n_terminus, c_terminus = get_user_input()
+    sequence, obs_mass, uncertainty, n_terminus, c_terminus, non_canonicals = get_user_input()
     # Uncomment this block for debugging and comment out get_user_input
     # obs_mass = 2
     # sequence = 'AAGLT'
     # uncertainty = 2
+
+    # Add non-canonical residues to amino acid masses index
+    for non_canonical in non_canonicals:
+        aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
     
     # Calc expected mass
     expected_mass = calc_expected_mass(sequence, n_terminus, c_terminus, aa_masses, termini_species_masses)
