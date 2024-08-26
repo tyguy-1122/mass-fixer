@@ -82,14 +82,6 @@ def get_user_input():
     '''
     Gets user input about the peptide and observed mass
     '''
-    print('#############################################################')
-    print('#############################################################')
-    print(open('mass-fixer-ascii-art.txt').read())
-    print('MassFixer is a tool for detecting possible reasons for differences between')
-    print('observed and expected masses of synthetic peptides. It is currently capable')
-    print('of handling the following potential synthesis issues: \n - residue deletions\n - truncations\n')
-    print('#############################################################')
-    print('#############################################################\n')
 
     # Non-canonical amino acids or protecting groups?
     non_canonicals = json.loads(open('non-canonical_aas.json').read())
@@ -190,30 +182,42 @@ def get_user_input():
 
     return sequence, observed_mass, confidence, n_terminus, c_terminus, non_canonicals
 
+def print_intro():
+    '''
+    Prints ascii art and a short description of the use cases for the tool
+    '''
+    print('#############################################################')
+    print('#############################################################')
+    print(open('mass-fixer-ascii-art.txt').read())
+    print('MassFixer is a tool for detecting possible reasons for differences between')
+    print('observed and expected masses of synthetic peptides. It is currently capable')
+    print('of handling the following potential synthesis issues: \n - residue deletions\n - truncations\n')
+    print('#############################################################')
+    print('#############################################################\n')
+
 
 if __name__ == '__main__':
-    # Enable colored terminal output
     colorama_init()
+    print_intro()
 
-    # Get masses
-    aa_masses = json.loads(open('aa_masses.json').read())
-    termini_species_masses = json.loads(open('termini_species_masses.json').read())
-
-    # Get user input
     sequence, obs_mass, uncertainty, n_terminus, c_terminus, non_canonicals = get_user_input()
+
     # Uncomment this block for debugging and comment out get_user_input
     # obs_mass = 2
     # sequence = 'AAGLT'
     # uncertainty = 2
 
-    # Add non-canonical residues to amino acid masses index
+    # Get masses of residues
+    aa_masses = json.loads(open('aa_masses.json').read())
+    termini_species_masses = json.loads(open('termini_species_masses.json').read())
     for non_canonical in non_canonicals:
         aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
     
     # Calc expected mass
     expected_mass = calc_expected_mass(sequence, n_terminus, c_terminus, aa_masses, termini_species_masses)
     delta_mass = expected_mass - obs_mass
-
+    
+    # Validate expected mass
     while True:
         ans = input(f'We calculated your expected mass to be {expected_mass} and your delta to be {delta_mass}. Does that look correct? (yes/no): ').lower()
         if ans == 'no':
