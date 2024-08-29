@@ -10,6 +10,8 @@ def find_possible_deltas(sequence: str, delta_mass: float, residue_masses: dict,
     root = {'mass': 0, 'residues': [], 'position': -1}
     queue = deque()
     queue.append(root)
+    max_deletions = 5
+    curr_deletions = 0
 
     # Perform BFS
     while queue:
@@ -20,7 +22,7 @@ def find_possible_deltas(sequence: str, delta_mass: float, residue_masses: dict,
             solutions.append(curr_node)
         
         # Termination condtion
-        elif curr_node['mass'] >= confidence + delta_mass:
+        elif curr_node['mass'] >= confidence + delta_mass or curr_deletions >= max_deletions:
             continue
         
         # Continue recursive search
