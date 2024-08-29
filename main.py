@@ -7,51 +7,8 @@
 
 import json
 import re
-from collections import deque
 from colorama import Fore, Style, init as colorama_init
-
-def calc_expected_mass(sequence: str, n_terminus: str, c_terminus: str, aa_masses: dict, termini_species_masses: dict):
-    '''
-    calculates expected peptide mass from input sequence
-    '''
-    total_mass = 0
-    for aa in sequence:
-        total_mass += aa_masses[aa]
-    
-    total_mass += termini_species_masses[n_terminus]
-    total_mass += termini_species_masses[c_terminus]
-
-    return total_mass
-
-def delta_mass_combinations(sequence: str, delta_mass: float, aa_masses: dict):
-    '''
-    Returns list of possible combinations of deletions that would result in the delta mass.
-    
-    Uses a breadth-first-search algorithm to search the solution space.
-    '''
-    solutions = []
-    root = {'mass': 0, 'residues': [], 'position': -1}
-    queue = deque()
-    queue.append(root)
-
-    # Perform BFS
-    while queue:
-        curr_node = queue.popleft()
-
-        # Condition for solution
-        if delta_mass - uncertainty < curr_node['mass'] and curr_node['mass'] < delta_mass + uncertainty:
-            solutions.append(curr_node)
-        
-        # Termination condtion
-        elif curr_node['mass'] >= uncertainty + delta_mass:
-            continue
-        
-        # Continue recursive search
-        for i in range (curr_node['position'] + 1, len(sequence)):
-            next_mass = aa_masses[sequence[i]]
-            queue.append({'mass': curr_node['mass'] + next_mass, 'residues': curr_node['residues'] + [i], 'position': i})
-    
-    return solutions
+from source import delta_finder, utils
 
 def print_pretty_solutions(ugly_solutions, sequence, expected_mass, n_terminus, c_terminus):
     '''
@@ -84,7 +41,7 @@ def get_user_input():
     '''
 
     # Non-canonical amino acids or protecting groups?
-    non_canonicals = json.loads(open('non-canonical_aas.json').read())
+    non_canonicals = json.loads(open('data/non-canonical_aas.json').read())
     while True:
         have_non_canonical = input('Does your sequence include any non-canonical amino acids or protecting groups that are not removed during cleavage? (yes/no): ').lower()
         if have_non_canonical == 'yes':
@@ -144,7 +101,7 @@ def get_user_input():
         break
 
     # Get N-Terminus
-    termini_species_masses = json.loads(open('termini_species_masses.json').read())
+    termini_species_masses = json.loads(open('data/termini_species_masses.json').read())
     print('Here are the possible chemical species for your termini for reference: ')
     print(list(termini_species_masses.keys()))
     while True:
@@ -188,7 +145,7 @@ def print_intro():
     '''
     print('#############################################################')
     print('#############################################################')
-    print(open('mass-fixer-ascii-art.txt').read())
+    print(open('resources/mass-fixer-ascii-art.txt').read())
     print('MassFixer is a tool for detecting possible reasons for differences between')
     print('observed and expected masses of synthetic peptides. It is currently capable')
     print('of handling the following potential synthesis issues: \n - residue deletions\n - truncations\n')
@@ -208,13 +165,13 @@ if __name__ == '__main__':
     # uncertainty = 2
 
     # Get masses of residues
-    aa_masses = json.loads(open('aa_masses.json').read())
-    termini_species_masses = json.loads(open('termini_species_masses.json').read())
+    aa_masses = json.loads(open('data/aa_masses.json').read())
+    termini_species_masses = json.loads(open('data/termini_species_masses.json').read())
     for non_canonical in non_canonicals:
         aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
     
     # Calc expected mass
-    expected_mass = calc_expected_mass(sequence, n_terminus, c_terminus, aa_masses, termini_species_masses)
+    expected_mass = utils.calc_sequence_mass(sequence, n_terminus, c_terminus, aa_masses, termini_species_masses)
     delta_mass = expected_mass - obs_mass
     
     # Validate expected mass
@@ -229,7 +186,7 @@ if __name__ == '__main__':
 
     # Find solutions
     print('Calculating...')
-    solutions = delta_mass_combinations(sequence, delta_mass, aa_masses)
+    solutions = delta_finder.find_possible_deltas(sequence, delta_mass, aa_masses, uncertainty)
 
     # Show solutions to user
     print_pretty_solutions(solutions, sequence, expected_mass, n_terminus, c_terminus)
