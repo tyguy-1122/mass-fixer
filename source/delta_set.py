@@ -15,5 +15,8 @@ class DeltaSet:
     def __hash__(self):
         return hash(self.deltas)
     
+    def __eq__(self, other):
+        return hash(self.deltas) == hash(other.deltas) and self.mass == other.mass  
+    
     def __repr__(self):
         return f"DeltaSet(mass={self.mass}, deltas='{self.deltas}')"

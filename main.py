@@ -8,7 +8,10 @@
 import json
 import re
 from colorama import Fore, Style, init as colorama_init
-from source import delta_finder, utils
+from source import delta_finder
+from source.peptide import Peptide
+from source.delta import Delta
+from source.delta_set import DeltaSet
 
 def print_pretty_solutions(ugly_solutions, sequence, expected_mass, n_terminus, c_terminus):
     '''
@@ -41,14 +44,15 @@ def get_user_input():
     '''
 
     # Non-canonical amino acids or protecting groups?
-    non_canonicals = json.loads(open('data/non-canonical_aas.json').read())
+    residues = json.loads(open('data/residues.json').read())
+    non_canonicals = [residue for residue in residues if residues[residue]['non_canonical']]
     while True:
         have_non_canonical = input('Does your sequence include any non-canonical amino acids or protecting groups that are not removed during cleavage? (yes/no): ').lower()
         if have_non_canonical == 'yes':
             print('The following are the pre-defined non-canonical residues that you can reference in your sequence input:')
             print('Name\t\tSymbol\t\tMass')
             for non_canonical in non_canonicals:
-                print(non_canonical + '\t\t' + str(non_canonicals[non_canonical]['symbol']) + '\t\t' + str(non_canonicals[non_canonical]['mass']))
+                print(residues[non_canonical]['name'] + '\t\t' + non_canonical + '\t\t' + str(residues[non_canonical]['mass']))
             non_canonical_num = 1
             while True:
                 have_undefined_non_canoncials = input('Do you have any residues that are not included in this list? (yes/no)').lower()
@@ -64,7 +68,7 @@ def get_user_input():
                                 break
                             except(Exception):
                                 print('The mass for the non-canonical residue must be a number. Please try again.')
-                        non_canonicals[new_non_canonical] = {'symbol': str(non_canonical_num), 'mass': new_non_canoncial_mass}
+                        residues[new_non_canonical] = {'symbol': str(non_canonical_num), 'mass': new_non_canoncial_mass}
                         while True:
                             more_to_define = input('Do you have more non_canonicals to define? (yes/no)').lower()
                             if more_to_define == 'yes':
@@ -75,7 +79,7 @@ def get_user_input():
                                 print('Here is updated list of non-canonical residues you can reference in your sequence input: ')
                                 print('Name\t\tSymbol\t\tMass')
                                 for non_canonical in non_canonicals:
-                                    print(non_canonical + '\t\t' + str(non_canonicals[non_canonical]['symbol']) + '\t\t' + str(non_canonicals[non_canonical]['mass']))
+                                    print(residues[non_canonical]['name'] + '\t\t' + non_canonical + '\t\t' + str(residues[non_canonical]['mass']))
                                 break
                             print('Please answer yes/no. Try again.')
                         break
@@ -92,16 +96,14 @@ def get_user_input():
     # Get sequence
     while True:
         sequence = input('Enter the desired sequence of your peptide: ').upper()
-        possible_residue_symbols = 'ACDEFGHIKLMNPQRSTVWY'
-        for non_canonical in non_canonicals:
-            possible_residue_symbols += non_canonicals[non_canonical]['symbol']
+        possible_residue_symbols = ''.join(residues.keys())
         if re.search(f"[^{possible_residue_symbols}]", sequence):
             print('You have entered an invalid sequence. Please try again.')
             continue
         break
 
     # Get N-Terminus
-    termini_species_masses = json.loads(open('data/termini_species_masses.json').read())
+    termini_species_masses = json.loads(open('data/termini_species.json').read())
     print('Here are the possible chemical species for your termini for reference: ')
     print(list(termini_species_masses.keys()))
     while True:
@@ -165,18 +167,17 @@ if __name__ == '__main__':
     # uncertainty = 2
 
     # Get masses of residues
-    aa_masses = json.loads(open('data/aa_masses.json').read())
-    termini_species_masses = json.loads(open('data/termini_species_masses.json').read())
-    for non_canonical in non_canonicals:
-        aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
+    # aa_masses = json.loads(open('data/aa_masses.json').read())
+    # termini_species_masses = json.loads(open('data/termini_species_masses.json').read())
+    # for non_canonical in non_canonicals:
+    #     aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
     
-    # Calc expected mass
-    expected_mass = utils.calc_sequence_mass(sequence, n_terminus, c_terminus, aa_masses, termini_species_masses)
-    delta_mass = expected_mass - obs_mass
+    peptide = Peptide(sequence, n_terminus, c_terminus)
+    target_mass = peptide.mass - obs_mass
     
     # Validate expected mass
     while True:
-        ans = input(f'We calculated your expected mass to be {expected_mass} and your delta to be {delta_mass}. Does that look correct? (yes/no): ').lower()
+        ans = input(f'We calculated your expected mass to be {peptide.mass} and your delta to be {target_mass}. Does that look correct? (yes/no): ').lower()
         if ans == 'no':
             print("Check your math! ...or fix the bug in this program. Goodbye!")
             exit()
@@ -186,7 +187,11 @@ if __name__ == '__main__':
 
     # Find solutions
     print('Calculating...')
-    solutions = delta_finder.find_possible_deltas(sequence, delta_mass, aa_masses, uncertainty)
+    solutions = delta_finder.get_solutions(peptide, target_mass, uncertainty)
 
     # Show solutions to user
-    print_pretty_solutions(solutions, sequence, expected_mass, n_terminus, c_terminus)
+    for solution in solutions:
+        print('\n')
+        print(solution)
+        print('\n')
+    # print_pretty_solutions(solutions, sequence, expected_mass, n_terminus, c_terminus)

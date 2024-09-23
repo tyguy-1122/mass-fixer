@@ -1,0 +1,327 @@
+{
+    "A": {
+        "name": "Alanine",
+        "mass": 71.0786,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 71.0786,
+                "description": "A",
+                "likelihood": 1
+            }
+        ]
+    },
+    "C": {
+        "name": "Cysteine",
+        "mass": 103.1386,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 103.1386,
+                "description": "C",
+                "likelihood": 1
+            }
+        ]
+    },
+    "D": {
+        "name": "Aspartic Acid",
+        "mass": 115.0884,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 115.0884,
+                "description": "D",
+                "likelihood": 1
+            }
+        ]
+    },
+    "E": {
+        "name": "Glutamic Acid",
+        "mass": 129.1152,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 129.1152,
+                "description": "E",
+                "likelihood": 1
+            }
+        ]
+    },
+    "F": {
+        "name": "Phenylalanine",
+        "mass": 147.1762,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 147.1762,
+                "description": "F",
+                "likelihood": 1
+            }
+        ]
+    },
+    "G": {
+        "name": "Glycine",
+        "mass": 57.0518,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 57.0518,
+                "description": "G",
+                "likelihood": 1
+            }
+        ]
+    },
+    "H": {
+        "name": "Histidine",
+        "mass": 137.1408,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 137.1408,
+                "description": "H",
+                "likelihood": 1
+            }
+        ]
+    },
+    "I": {
+        "name": "Isoleucine",
+        "mass": 113.159,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 113.159,
+                "description": "I",
+                "likelihood": 1
+            }
+        ]
+    },
+    "K": {
+        "name": "Lysine",
+        "mass": 128.1736,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 128.1736,
+                "description": "K",
+                "likelihood": 1
+            }
+        ]
+    },
+    "L": {
+        "name": "Leucine",
+        "mass": 113.159,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 113.159,
+                "description": "L",
+                "likelihood": 1
+            }
+        ]
+    },
+    "M": {
+        "name": "Methionine",
+        "mass": 131.1922,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 131.1922,
+                "description": "M",
+                "likelihood": 1
+            }
+        ]
+    },
+    "N": {
+        "name": "Asparagine",
+        "mass": 114.1036,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 114.1036,
+                "description": "N",
+                "likelihood": 1
+            }
+        ]
+    },
+    "P": {
+        "name": "Proline",
+        "mass": 97.1164,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 97.1164,
+                "description": "P",
+                "likelihood": 1
+            }
+        ]
+    },
+    "Q": {
+        "name": "Glutamine",
+        "mass": 128.1304,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 128.1304,
+                "description": "Q",
+                "likelihood": 1
+            }
+        ]
+    },
+    "R": {
+        "name": "Arginine",
+        "mass": 156.187,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 156.187,
+                "description": "R",
+                "likelihood": 1
+            }
+        ]
+    },
+    "S": {
+        "name": "Serine",
+        "mass": 87.078,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 87.078,
+                "description": "S",
+                "likelihood": 1
+            }
+        ]
+    },
+    "T": {
+        "name": "Threonine",
+        "mass": 101.1048,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 101.1048,
+                "description": "T",
+                "likelihood": 1
+            }
+        ]
+    },
+    "V": {
+        "name": "Valine",
+        "mass": 99.1322,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 99.1322,
+                "description": "V",
+                "likelihood": 1
+            }
+        ]
+    },
+    "W": {
+        "name": "Tryptophan",
+        "mass": 186.2128,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 186.2128,
+                "description": "W",
+                "likelihood": 1
+            }
+        ]
+    },
+    "Y": {
+        "name": "Tyrosine",
+        "mass": 163.1756,
+        "non_canonical": false,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 163.1756,
+                "description": "Y",
+                "likelihood": 1
+            }
+        ]
+    },
+    "Z": {
+        "name": "Norleucine",
+        "mass": 113.17,
+        "non_canonical": true,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 113.17,
+                "description": "Z",
+                "likelihood": 1
+            }
+        ]
+    },
+    "X": {
+        "name": "Cys(Stbu)",
+        "mass": 191.31,
+        "non_canonical": true,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 191.31,
+                "description": "X",
+                "likelihood": 1
+            }
+        ]
+    },
+    "O": {
+        "name": "Cys(Acm)",
+        "mass": 174.21,
+        "non_canonical": true,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 174.21,
+                "description": "O",
+                "likelihood": 1
+            }
+        ]
+    },
+    "U": {
+        "name": "Lys(Dde)",
+        "mass": 292.37,
+        "non_canonical": true,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 292.37,
+                "description": "U",
+                "likelihood": 1
+            }
+        ]
+    },
+    "B": {
+        "name": "Pen(SIT)",
+        "mass": 233.39,
+        "non_canonical": true,
+        "deltas": [
+            {
+                "type": "DELETION",
+                "mass": 233.39,
+                "description": "B",
+                "likelihood": 1
+            }
+        ]
+    }
+}

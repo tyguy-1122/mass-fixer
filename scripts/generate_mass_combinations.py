@@ -1,7 +1,7 @@
 import json
 from collections import deque
 
-residue_masses = json.loads(open('data/aa_masses.json').read())
+residue_masses = json.loads(open('data/residues.json').read())
 # residue_masses = {'A': 5, 'B': 2, 'C': 1}
 residues = [residue for residue in residue_masses]
 residues_sorted = sorted(residues, key=lambda x: residue_masses[x], reverse=True)

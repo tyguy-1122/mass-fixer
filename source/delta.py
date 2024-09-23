@@ -1,8 +1,8 @@
 from enum import Enum
 
 class DeltaType(Enum):
-    DELETION = "Deletion"
-    TRUNCATION = "Truncation"
+    DELETION = "DELETION"
+    TRUNCATION = "TRUNCATION"
 
 class Delta:
     def __init__(self, mass, type: DeltaType, description=""):
@@ -21,3 +21,6 @@ class Delta:
 
     def __hash__(self):
         return hash(self.description)
+    
+    def __eq__(self, other):
+        return self.mass == other.mass and self.type == other.type and self.description == other.description

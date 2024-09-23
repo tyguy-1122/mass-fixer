@@ -9,12 +9,17 @@ def get_deltas(peptide: Peptide):
     Gets all of the possible deltas based on the provided sequence
     '''
     # Deletion deltas
-    residue_masses = json.loads(open('data/aa_masses.json').read())
-    residue_deltas = [Delta(residue_masses[residue], DeltaType.DELETION, str(residue)) for residue in peptide.sequence]
+    residues = json.loads(open('data/residues.json').read())
+    deltas = []
+    for residue in peptide.sequence:
+        residue_deltas = residues[residue]['deltas']
+        for delta in residue_deltas:
+            deltas.append(Delta(delta['mass'], DeltaType(delta['type']), delta['description']))
+    # deltas = [Delta(residues[residue][], DeltaType.DELETION, str(residue)) for residue in peptide.sequence]
 
-    # TODO: Incomplete Fmoc removal, sodium adducts, incomplete W deprotection, etc.
+    # TODO: Incomplete Fmoc removal, sodium adducts, incomplete deprotection, etc.
 
-    return residue_deltas
+    return deltas
 
 def generate_delta_sets(deltas: list[Delta], target_mass: float, confidence: float):
     '''
@@ -41,9 +46,9 @@ def generate_delta_sets(deltas: list[Delta], target_mass: float, confidence: flo
             continue
         
         # Continue recursive search
-        for i in range (curr_node[1] + 1, len(deltas)):
+        for i in range (curr_node[1], len(deltas)):
             deltas_set = curr_node[0].deltas | frozenset([deltas[i]])
-            if set(deltas_set) in visited: # Don't do duplicate work
+            if deltas_set in visited: # Don't do duplicate work
                 continue
             visited.add(deltas_set)
             next_mass = deltas[i].mass
@@ -55,17 +60,14 @@ def get_truncations(peptide: Peptide, target_mass: float, confidence: float):
     '''
     Get all of the N-terminal trucations for the provided peptide without exceeding the target mass.
     '''
-    aa_masses = json.loads(open('data/aa_masses.json').read())
-    non_canonicals = json.loads(open('data/non-canonical_aas.json').read())
-    for non_canonical in non_canonicals:
-        aa_masses[non_canonicals[non_canonical]['symbol']] = non_canonicals[non_canonical]['mass']
+    residues = json.loads(open('data/residues.json').read())
     truncations = [peptide]
     truncated_mass = 0
     for i in range(1, len(peptide.sequence)):
-        truncated_mass += aa_masses[peptide.sequence[i - 1]]
+        truncated_mass += residues[peptide.sequence[i - 1]]['mass']
         if truncated_mass > target_mass + confidence:
             break
-        truncations.append(Peptide(peptide.sequence[i:len(peptide.sequence)], peptide.n_termini_species, peptide.c_termini_species, truncated_mass))
+        truncations.append(Peptide(peptide.sequence[i:len(peptide.sequence)], peptide.n_termini_species, peptide.c_termini_species, peptide.mass - truncated_mass))
     return truncations
 
 def get_solutions(peptide: Peptide, target_mass: float, confidence):
@@ -77,6 +79,9 @@ def get_solutions(peptide: Peptide, target_mass: float, confidence):
     for truncation in truncations:
         deltas = get_deltas(peptide)
         for delta_combination in generate_delta_sets(deltas, target_mass - (peptide.mass - truncation.mass), confidence):
-            solutions.append(DeltaSet(delta_combination.deltas | frozenset([Delta(peptide.mass - truncation.mass, DeltaType.TRUNCATION, f"truncation of \'{peptide.sequence[:len(peptide.sequence) - len(truncation.sequence)]}\'")])))
+            if truncation.mass < (peptide.mass - .01):
+                solutions.append(DeltaSet(delta_combination.deltas | frozenset(Delta(peptide.mass - truncation.mass, DeltaType.TRUNCATION, f"truncation of \'{peptide.sequence[:len(peptide.sequence) - len(truncation.sequence)]}\'"))))
+            else:
+                solutions.append(DeltaSet(delta_combination.deltas))
     
     return solutions
