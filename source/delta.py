@@ -5,7 +5,7 @@ class DeltaType(Enum):
     TRUNCATION = "TRUNCATION"
 
 class Delta:
-    def __init__(self, mass, type: DeltaType, description=""):
+    def __init__(self, mass, type: DeltaType, likelihood: int, description=""):
         """
         Initialize a Delta instance with mass, type, and description.
         """
@@ -15,6 +15,7 @@ class Delta:
         self.mass = mass
         self.type = type
         self.description = description
+        self.likelihood = likelihood
 
     def __repr__(self):
         return f"Delta(mass={self.mass}, type={self.type.value}, description='{self.description}')"

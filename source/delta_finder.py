@@ -14,7 +14,7 @@ def get_deltas(peptide: Peptide):
     for residue in peptide.sequence:
         residue_deltas = residues[residue]['deltas']
         for delta in residue_deltas:
-            deltas.append(Delta(delta['mass'], DeltaType(delta['type']), delta['description']))
+            deltas.append(Delta(delta['mass'], DeltaType(delta['type']), delta['likelihood'], delta['description']))
     # deltas = [Delta(residues[residue][], DeltaType.DELETION, str(residue)) for residue in peptide.sequence]
 
     # TODO: Incomplete Fmoc removal, sodium adducts, incomplete deprotection, etc.
@@ -28,7 +28,7 @@ def generate_delta_sets(deltas: list[Delta], target_mass: float, confidence: flo
     deltas = sorted(deltas, key=lambda x: x.mass, reverse=True)
 
     delta_combinations = []
-    root = tuple([DeltaSet(frozenset(), 0), 0])
+    root = tuple([DeltaSet(frozenset(), 0, 0), 0])
     queue = deque()
     queue.append(root)
     max_deletions = 4
@@ -52,7 +52,7 @@ def generate_delta_sets(deltas: list[Delta], target_mass: float, confidence: flo
                 continue
             visited.add(deltas_set)
             next_mass = deltas[i].mass
-            queue.append(tuple([DeltaSet(deltas_set, curr_node[0].mass + next_mass), i]))
+            queue.append(tuple([DeltaSet(deltas_set, curr_node[0].mass + next_mass, curr_node[0].likelihood + deltas[i].likelihood), i]))
     
     return delta_combinations
 
@@ -80,8 +80,8 @@ def get_solutions(peptide: Peptide, target_mass: float, confidence):
         deltas = get_deltas(peptide)
         for delta_combination in generate_delta_sets(deltas, target_mass - (peptide.mass - truncation.mass), confidence):
             if truncation.mass < (peptide.mass - .01):
-                solutions.append(DeltaSet(delta_combination.deltas | frozenset(Delta(peptide.mass - truncation.mass, DeltaType.TRUNCATION, f"truncation of \'{peptide.sequence[:len(peptide.sequence) - len(truncation.sequence)]}\'"))))
+                solutions.append(DeltaSet(delta_combination.deltas | frozenset([Delta(peptide.mass - truncation.mass, DeltaType.TRUNCATION, 1, f"truncation of \'{peptide.sequence[:len(peptide.sequence) - len(truncation.sequence)]}\'")])))
             else:
                 solutions.append(DeltaSet(delta_combination.deltas))
     
-    return solutions
+    return sorted(solutions, key=lambda x: x.likelihood)
